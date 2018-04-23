@@ -1,0 +1,95 @@
+<link rel="stylesheet" href="assets/css/color-brewer.min.css">
+<script src="assets/js/highlight.min.js"></script>
+<script src="assets/js/beautify.min.js"></script>
+<script src="assets/js/beautify-css.min.js"></script>
+<script src="assets/js/beautify-html.min.js"></script>
+<script src="assets/js/site.js"></script>
+
+<style>
+#storybook-preview-iframe {
+  border: none !important;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 0 4px 0 !important;
+}
+.highlighted {
+  background: #fdfdfd;
+  padding: 14px;
+  border: 1px solid #eaeaea;
+}
+.Pane .Pane2 div[role="tabpanel"] {
+  font-family: -apple-system, ".SFNSText-Regular", "San Francisco", BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", "Lucida Grande", Arial, sans-serif;
+}
+
+.Pane .Pane2 div[role="tabpanel"] h2 {
+  color: #333 !important;
+}
+.Pane .Pane2 div[role="tabpanel"] h4 {
+  margin-top: 40px;
+}
+.Pane .Pane2 div[role="tabpanel"] br {
+  display: none !important;
+  line-height: 0 !important;
+}
+.Pane .Pane2 div[role="tabpanel"] a {
+  color: #409dff;
+  text-decoration: none;
+  font-size: 14px;
+}
+.Pane .Pane2 div[role="tabpanel"] a:hover {
+  text-decoration: underline;
+}
+.Pane .Pane2 div[role="tabpanel"] p {
+  color: #666;
+  font-size: 16px;
+}
+
+.Pane .Pane2 div[role="tablist"] button:focus {
+  outline: none !important;
+}
+
+.Pane .Pane2 div[role="tabpanel"] form label {
+  width: 125px !important;
+}
+.Pane .Pane2 div[role="tabpanel"] form {
+  margin-top: 50px;
+}
+.Pane .Pane2 div[role="tabpanel"] form::before {
+  content: 'Use the Form below to Dynamically Generate Markup for this Component.';
+  position: absolute;
+  width: calc(100% - 50px);
+  left: 10px;
+  top: 10px;
+  background: #fdfdfd;
+  padding: 14px;
+  border: 1px solid #eaeaea;
+  text-align: center;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 12px;
+  font-weight: 300;
+}
+
+.Pane .Pane2 div[role="tabpanel"] h1,
+.Pane .Pane2 div[role="tabpanel"] h2,
+.Pane .Pane2 div[role="tabpanel"] h3,
+.Pane .Pane2 div[role="tabpanel"] h4,
+.Pane .Pane2 div[role="tabpanel"] h5,
+.Pane .Pane2 div[role="tabpanel"] h6 {
+  color: rgb(130, 130, 130);
+  -webkit-font-smoothing: antialiased;
+  text-transform: uppercase;
+  font-weight: normal;
+}
+
+.Pane .Pane2 div[role="tabpanel"] p:empty {
+  display: none !important;
+  line-height: 0 !important;
+}
+</style>
+
+<script>
+window.onload = function () {
+  hljs.configure({ languages: ['xml', 'js', 'css'] });
+  setInterval(highlightCode, 100);
+};
+</script>
