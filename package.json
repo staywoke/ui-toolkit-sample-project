@@ -16,7 +16,7 @@
     "web": "http-server ./dist -o -s -p8081 -c-1 --cors"
   },
   "dependencies": {
-    "ui-toolkit": "github:staywoke/ui-toolkit#stub",
+    "ui-toolkit": "github:staywoke/ui-toolkit",
     "vue": "^2.5.16",
     "vue-router": "^3.0.1",
     "vue2-animate": "^2.0.0"

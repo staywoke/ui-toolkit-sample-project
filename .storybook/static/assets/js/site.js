@@ -1,114 +1,65 @@
 var templateReg = /(<\/?)template([\s\S]*?>)/ig;
 var vueBeautifyDivReg = /(<\/?)vueBeautifyDiv([\s\S]*?>)/ig;
-var samples = document.getElementsByTagName('pre');
-var formatOptions = {
-  indent_size: 2,
-  indent_char: ' ',
-  indent_with_tabs: false,
-  eol: '\n',
-  end_with_newline: false,
-  indent_level: 0,
-  preserve_newlines: true,
-  max_preserve_newlines: 10,
-  space_in_paren: true,
-  space_in_empty_paren: true,
-  jslint_happy: true,
-  space_after_anon_function: true,
-  brace_style: 'collapse',
-  unindent_chained_methods: true,
-  break_chained_methods: true,
-  keep_array_indentation: true,
-  unescape_strings: true,
-  wrap_line_length: 0,
-  e4x: false,
-  comma_first: false,
-  operator_position: 'before-newline'
-}
-
-function getIndent(level) {
-  var result = '',
-    i = level * 4;
-  if (level < 0) {
-    throw "Level is below 0";
-  }
-  while (i--) {
-    result += ' ';
-  }
-  return result;
-}
-
-function format(html) {
-  html = html.trim();
-  var result = '',
-    indentLevel = 0,
-    tokens = html.split(/</);
-  for (var i = 0, l = tokens.length; i < l; i++) {
-    var parts = tokens[i].split(/>/);
-    if (parts.length === 2) {
-      if (tokens[i][0] === '/') {
-        indentLevel--;
-      }
-      result += getIndent(indentLevel);
-      if (tokens[i][0] !== '/') {
-        indentLevel++;
-      }
-
-      if (i > 0) {
-        result += '<';
-      }
-
-      result += parts[0].trim() + ">\n";
-      if (parts[1].trim() !== '') {
-        result += getIndent(indentLevel) + parts[1].trim().replace(/\s+/g, ' ') + "\n";
-      }
-
-      if (parts[0].match(/^(img|hr|br)/)) {
-        indentLevel--;
-      }
-    } else {
-      result += getIndent(indentLevel) + parts[0] + "\n";
-    }
-  }
-  return result;
-}
+var previousComponent = {
+  manager: '',
+  preview: ''
+};
+var target = null;
 
 function beautifyVue(text) {
   if (!text) {
     return;
   }
 
-  text = format(text);
-
   text = text.replace(templateReg, function(match, begin, end) {
     return begin + 'vueBeautifyDiv' + end;
   });
 
-  text = html_beautify(text, formatOptions);
+  text = html_beautify(text, {
+    indent_size: 2,
+    indent_char: ' ',
+    brace_style: 'collapse'
+  });
 
   return text.replace(vueBeautifyDivReg, function(match, begin, end) {
     return begin + 'template' + end;
   });
 }
 
-function highlightCode() {
+// This sometimes fails on the first try
+function highlightCode(samples) {
   for (var i = 0; i < samples.length; i++) {
     var classlist = samples[i].classList.toString();
     var markup = samples[i].textContent;
 
-    if (markup !== '' && classlist.indexOf('highlighted') === -1) {
+    if (markup !== '' && classlist.indexOf('highlighted') === -1 && classlist.indexOf('glamorous') === -1 && classlist.indexOf('css-') === -1) {
       if (markup.charAt(0) === '<') {
         markup = beautifyVue(markup);
       } else {
-        markup = js_beautify(markup, formatOptions);
+        markup = markup.replace('export default', "\n\nexport default");
+        markup = js_beautify(markup, {
+          indent_size: 2,
+          indent_char: ' ',
+          brace_style: 'collapse'
+        });
       }
 
-      var output = hljs.fixMarkup(hljs.highlightAuto(markup).value);
+      var output = hljs.highlightAuto(markup).value;
 
       samples[i].innerHTML = output;
       samples[i].classList.add('highlighted');
+      samples[i].style.opacity = 1;
 
-      externallinks();
-      updatePageTitle();
+      if (document.querySelector('#toggle-code')) {
+        document.querySelector('.vue-info .code').classList.remove('open');
+        document.querySelector('.vue-info .props').classList.remove('open');
+        document.querySelector('#toggle-code').classList.remove('active');
+        document.querySelector('#toggle-props').classList.remove('active');
+        document.querySelector('#reload-preview').classList.remove('active');
+        document.querySelector('#toggle-code').style.display = 'block';
+        document.querySelector('#toggle-props').style.display = 'block';
+        document.querySelector('#reload-preview').style.display = 'block';
+      }
     }
   }
 }
@@ -129,17 +80,49 @@ function externallinks() {
 function getJsonFromUrl() {
   var query = location.search.substr(1);
   var result = {};
+
   query.split("&").forEach(function(part) {
     var item = part.split("=");
     result[item[0]] = decodeURIComponent(item[1]);
   });
+
   return result;
 }
 
 function updatePageTitle () {
   var params = getJsonFromUrl();
-
-  document.title = (params) ? `UI Toolkit - ${params.selectedKind} - ${params.selectedStory}` : 'StayWoke - UI Toolkit'
+  document.title = (params.selectedKind && params.selectedStory) ? `UI Toolkit - ${params.selectedKind} - ${params.selectedStory}` : 'StayWoke - UI Toolkit';
 }
 
-updatePageTitle();
+function checkUpdate (win) {
+  target = win;
+
+  var sample;
+  var $code = document.querySelector('#toggle-code');
+  var $props = document.querySelector('#toggle-props');
+  var $reload = document.querySelector('#reload-preview');
+
+  if (target === 'manager') {
+    samples = document.querySelectorAll('.Pane.horizontal.Pane2 pre');
+  } else if (target === 'preview') {
+    samples = document.querySelectorAll('.vue-info pre');
+  }
+
+  var currentComponent = (typeof window.parent.location !== 'undefined') ? window.parent.location.search : window.location.search;
+  if (samples.length > 0 && currentComponent !== previousComponent[target]) {
+    previousComponent[target] = currentComponent;
+
+    updatePageTitle();
+    externallinks();
+    updatePageTitle();
+    highlightCode(samples);
+
+    setInterval(function() { highlightCode(samples); }, 100);
+  } else if (samples.length === 0 && currentComponent !== previousComponent[target]) {
+    if ($code && $props && $reload) {
+      $code.style.display = 'none';
+      $props.style.display = 'none';
+      $reload.style.display = 'none';
+    }
+  }
+}
