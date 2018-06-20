@@ -3,13 +3,13 @@
     "name": {
       "type": "string",
       "required": true,
-      "message": "Project name",
+      "message": "Project name"
     },
     "description": {
       "type": "string",
       "required": true,
       "message": "Project description",
-      "default": "StayWoke Platform Project",
+      "default": "StayWoke Platform Project"
     },
     "author": {
       "type": "string",
